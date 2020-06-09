@@ -7,6 +7,14 @@ cd monorepo
 git clone --recursive https://github.com/adotando-pet/frontend.git
 git clone --recursive https://github.com/adotando-pet/backend.git
 
+cd backend
+git checkout dev
+
+cd ../frontend
+git checkout dev
+
+cd ..
+
 ```
 
 ### Create database 
