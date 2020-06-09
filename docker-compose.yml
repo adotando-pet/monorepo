@@ -1,0 +1,71 @@
+version: "3.5"
+
+services:
+  backend:
+    container_name: backend
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    command: bash -c "npm start"
+    volumes:
+      - ./backend/:/home/node/backend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    networks:
+      - pet-network
+  frontend:
+    container_name: frontend
+    ports:
+      - "8000:8000"
+    depends_on:
+      - backend
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    command: bash -c "yarn develop -H 0.0.0.0 -p 8000"
+    volumes:
+      - ./frontend:/frontend
+    restart: "no"
+    networks:
+      - pet-network
+  postgres:
+    container_name: postgres_container
+    image: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      PGDATA: /data/postgres
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - pet-network
+    restart: unless-stopped
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@admin.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+    volumes:
+      - pgadmin:/root/.pgadmin
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    networks:
+      - pet-network
+    restart: unless-stopped
+
+networks:
+  pet-network:
+    driver: bridge
+volumes:
+  postgres:
+  pgadmin:
+    # volumes:
+    #   - ./dbdata:/var/lib/postgresql/data
+    # api
+    # volumes:
+    #   - .:/innmanager-api
