@@ -87,23 +87,7 @@ services:
       - ./backend/db/mongo/:/data/db
     networks:
       - pet-network
-  mongo-gui-docker:
-    image: openkbs/mongo-gui-docker
-    command: /usr/bin/mongodb-compass
-    build:
-      context: ./
-      dockerfile: Dockerfile
-      args:
-        buildno: 1
-    container_name: mongo-gui-docker
-    volumes:
-      - /tmp/.X11-unix:/tmp/.X11-unix
-      - ./backend/db/mongoworkspace/:/home/developer/workspace
-    depends_on:
-      - mongo
-    links:
-      - mongo
-      
+        
   redis:
     image: "redis:alpine"
     command: redis-server --requirepass petdbpass
