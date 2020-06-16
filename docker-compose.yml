@@ -3,10 +3,10 @@ version: "3.5"
 services:
   backend:
     container_name: backend
-    build: 
+    build:
       context: ./backend
       dockerfile: Dockerfile
-    command: bash -c "npm start"
+    command: bash -c "npm run-script start"
     volumes:
       - ./backend/:/home/node/backend
     ports:
@@ -18,13 +18,13 @@ services:
   frontend:
     container_name: frontend
     ports:
-      - "8000:8000"
+      - "3001:3001"
     depends_on:
       - backend
-    build: 
+    build:
       context: ./frontend
       dockerfile: Dockerfile
-    command: bash -c "npm build && npm start"
+    command: bash -c "npm run-script build && npm run-script start"
     volumes:
       - ./frontend:/frontend
     restart: "no"
