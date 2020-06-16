@@ -15,7 +15,6 @@ services:
       - postgres
     networks:
       - pet-network
-      
   frontend:
     container_name: frontend
     ports:
@@ -25,13 +24,12 @@ services:
     build: 
       context: ./frontend
       dockerfile: Dockerfile
-    command: bash -c "yarn develop -H 0.0.0.0 -p 8000"
+    command: bash -c "npm build && npm start"
     volumes:
       - ./frontend:/frontend
     restart: "no"
     networks:
       - pet-network
-      
   postgres:
     container_name: postgres_container
     image: postgres
@@ -40,13 +38,12 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       PGDATA: /data/postgres
     volumes:
-      - ./backend/db/pg/:/data/postgres
+      - postgres:/data/postgres
     ports:
       - "5432:5432"
     networks:
       - pet-network
     restart: unless-stopped
-    
   pgadmin:
     container_name: pgadmin_container
     image: dpage/pgadmin4
@@ -54,63 +51,21 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@admin.com}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
     volumes:
-      - ./backend/db/pgadmin/:/root/.pgadmin
+      - pgadmin:/root/.pgadmin
     ports:
       - "${PGADMIN_PORT:-5050}:80"
     networks:
       - pet-network
     restart: unless-stopped
-  
-  mongo-express:
-    image: mongo-express
-    ports:
-      - 8081:8081
-    environment:
-      ME_CONFIG_BASICAUTH_USERNAME: petadmin
-      ME_CONFIG_BASICAUTH_PASSWORD: petadminpass!
-      ME_CONFIG_MONGODB_PORT: 27017
-      ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: petdbpass
-    links:
-      - mongo
-    networks:
-      - pet-network
 
-  mongo:
-    image: mongo
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: petdbpass
-    ports:
-      - "27017:27017"
-    volumes:
-      - ./backend/db/mongo/:/data/db
-    networks:
-      - pet-network
-        
-  redis:
-    image: "redis:alpine"
-    command: redis-server --requirepass petdbpass
-    ports:
-     - "6379:6379"
-    volumes:
-     - ./backend/db/redis-data:/var/lib/redis
-      - ./backend/db/redis.conf:/usr/local/etc/redis/redis.conf
-    networks:
-      - pet-network
-  redis-commander:
-    image: rediscommander/redis-commander:latest
-    environment:
-      - REDIS_HOSTS=local:redis:6379
-      - HTTP_USER=root
-      - HTTP_PASSWORD=petdbpass
-    ports:
-      - 8082:8082
-    depends_on:
-      - redis
-    networks:
-      - pet-network
-      
 networks:
   pet-network:
     driver: bridge
+volumes:
+  postgres:
+  pgadmin:
+    # volumes:
+    #   - ./dbdata:/var/lib/postgresql/data
+    # api
+    # volumes:
+    #   - .:/innmanager-api
